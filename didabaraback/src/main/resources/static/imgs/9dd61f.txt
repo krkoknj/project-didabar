@@ -1,0 +1,168 @@
+npm i styled-components
+npm i --save-dev @types/styled-components
+npm install @types/styled-components
+
+npm i react-query
+npm i --save-dev @types/react-query
+
+npm i react-router-dom  
+npm i --save-dev @types/react-router-dom
+npm install --save typescript @types/node @types/react @types/react-dom @types/jest 
+
+npm i @type/styled-compenents  ?
+
+
+
+npx create-react-app AppName --template typescript  
+or 
+
+
+터미널 명령어
+npx create-react-app (appname) 
+
+익스텐션
+vscode - styled-components	
+---------------------------------------------------------------------------
+index 파일 기본셋팅
+import reacat dom from "react-dom"
+import react from "react"
+import App from "./App"
+import { ThemePorvider} from "styled-components"
+
+const darkTheme = {
+	textColor:"whitesmoke"
+	backgroundColor: "#111"
+}  //테마 프로바이더의 프롭에 변수로 들어간다.
+
+ReactDom.render(
+	<React.StrictMode>
+		<ThemeProvider theme={ darkTheme } >
+		<App/>
+		</ThemeProvider>
+	</React.StrictMode>
+	document.getElementById("root");
+);
+----------------------------------------------------------------------------------
+App 파일 기본 셋팅
+import styled from "styled-components";
+import {createGlobalStyle} form  "styled-components";
+
+const GlobalStyle = 
+
+ function App() {
+	return null;
+}
+export default App;
+-------------------------------------------------------------------------------------
+styled-components 트릭
+const(변수선언) Box (대문자시작) = styled.div (html tag) ' css내용물 ' ;
+const Circle = styled(Box)` ` ; Box에서 스타일상속
+const input = styled.input.attrs({  })  <태그의 속성 ex)required ... placeholder... 정의
+<Box as="a"> 해당 태그를 a태그로 변경
+
+-에니메이션 변수선언 - const animiation = keyframs` 
+from {   (from 을 css 처럼 0% 이런식으로 해도 된다.
+	transform : rotate(90deg);
+}
+to {
+	transform:rotate(0deg);
+}	
+`;
+const Box = styled.div`
+animation = ${ (에니메이션 변수 자리 animati} 1s linear infinite;
+`;
+
+const Box = styled.div `
+ backgrund-color : red;
+ span { 
+	font-size : 150px;
+	^:hover : (호버)  (또는 &:hover)
+}
+`;
+
+const Emoji = styled.span
+const Box = styled.div `
+${Emoji} <또다른 스타일 컴포넌트를 조정할수 있음 이렇게 하면 as로 인해서 태그가 바뀐다고 하더라도 스타일 유지 가능
+게다가 선택자를 Box안으로 한정시키는 역할을함.
+ `
+
+
+-------------------------------------------------------------------GlobalStyle =createGlobalStyle
+
+const GlobalStyle = createGlobalStyle`
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@300;400&display=swap');
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+a {
+  text-decoration: none;
+}
+* {
+  box-sizing:border-box;
+}
+`;
+--------------------------------------------------------------------
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+코인 aip 들
+빗섬 : https://api.bithumb.com/public/ticker/ALL
+
+업비트 https://crix-api-endpoint.upbit.com/v1/crix/candles/days/?code=CRIX.UPBIT.KRW-BTC
+
+코인원 https://api.coinone.co.kr/ticker?currency=all
