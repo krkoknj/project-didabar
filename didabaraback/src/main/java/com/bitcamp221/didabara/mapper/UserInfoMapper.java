@@ -1,6 +1,6 @@
 package com.bitcamp221.didabara.mapper;
 
-import com.bitcamp221.didabara.dto.UserUserInfoDTO;
+import com.bitcamp221.didabara.dto.UserAndUserInfoDTO;
 import com.bitcamp221.didabara.model.UserEntity;
 import com.bitcamp221.didabara.model.UserInfoEntity;
 import org.apache.ibatis.annotations.*;
@@ -23,10 +23,10 @@ public interface UserInfoMapper {
   UserInfoEntity findByIdInUserInfo(@Param("id") String id);
 
   @Select("SELECT * FROM user_info JOIN user ON user_info.id = user.id WHERE user.id=#{id}")
-  Map findByMap(@Param("id") Long id);
+  Map<String, UserInfoEntity> findByMap(@Param("id") Long id);
 
   @Select("SELECT * FROM user_info JOIN user ON user_info.id = user.id WHERE user.id=#{id}")
-  UserUserInfoDTO findByDTO(@Param("id") String id);
+  UserAndUserInfoDTO findByDTO(@Param("id") String id);
 
   @Update("UPDATE user_info " +
           "JOIN user " +
@@ -61,7 +61,7 @@ public interface UserInfoMapper {
   Map findByIdUserAndInfo(@Param("id") String id);
 
   @Select("SELECT * FROM user WHERE id=#{id}")
-  UserUserInfoDTO findByIdUser(@Param("id") String id);
+  UserAndUserInfoDTO findByIdUser(@Param("id") String id);
 
   @Update("UPDATE user_info " +
           "JOIN user " +
@@ -73,7 +73,7 @@ public interface UserInfoMapper {
           "user.phone_number = #{uid.phoneNumber}, " +
           "user_info.modified_date = current_date() " +
           "WHERE user.id = #{id} ")
-  int updateUserInfoDTO(@Param("id") String id, @Param("uid") UserUserInfoDTO uid);
+  int updateUserInfoDTO(@Param("id") String id, @Param("uid") UserAndUserInfoDTO uid);
 
   @Update("UPDATE user_info SET profile_image_url=#{user.profileImageUrl}, file_name=#{user.filename} WHERE id=#{user.id}")
   int updateImage(@Param("user") UserInfoEntity userInfoEntity);

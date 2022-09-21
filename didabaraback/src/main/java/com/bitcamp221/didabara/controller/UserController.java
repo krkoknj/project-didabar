@@ -3,7 +3,6 @@ package com.bitcamp221.didabara.controller;
 
 import com.bitcamp221.didabara.dto.ResponseDTO;
 import com.bitcamp221.didabara.dto.UserDTO;
-import com.bitcamp221.didabara.model.EmailConfigEntity;
 import com.bitcamp221.didabara.model.UserEntity;
 import com.bitcamp221.didabara.presistence.EmailConfigRepository;
 import com.bitcamp221.didabara.presistence.UserInfoRepository;
@@ -96,8 +95,8 @@ public class UserController {
       if (user == null) {
         throw new Exception("찾은 사용자가 없습니다.");
       }
-      EmailConfigEntity byId = emailConfigRepository.findById(user.getId())
-              .orElseThrow(() -> new RuntimeException("인증 필요한 유저"));
+      /*EmailConfigEntity byId = emailConfigRepository.findById(user.getId())
+              .orElseThrow(() -> new RuntimeException("인증 필요한 유저"));*/
     } catch (Exception e) {
       return ResponseEntity.badRequest().body(e.getMessage());
     }

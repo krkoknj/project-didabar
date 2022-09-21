@@ -1,20 +1,12 @@
 package com.bitcamp221.didabara.controller;
 
 import com.bitcamp221.didabara.dto.S3Upload;
-import com.bitcamp221.didabara.dto.UserUserInfoDTO;
-import com.bitcamp221.didabara.mapper.UserInfoMapper;
+import com.bitcamp221.didabara.dto.UserAndUserInfoDTO;
 import com.bitcamp221.didabara.model.UserInfoEntity;
 import com.bitcamp221.didabara.presistence.UserInfoRepository;
-import com.bitcamp221.didabara.presistence.UserRepository;
 import com.bitcamp221.didabara.service.UserInfoService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FilenameUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,36 +14,20 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
-import java.util.UUID;
 
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/userinfo")
 public class UserInfoController {
 
-  @Autowired
-  private UserInfoService userInfoService;
+  private final UserInfoService userInfoService;
+  private final UserInfoRepository userInfoRepository;
 
-  @Autowired
-  private UserInfoRepository userInfoRepository;
-
-  @Autowired
-  private UserInfoMapper userInfoMapper;
-
-  @Autowired
-  private ResourceLoader resourceLoader;
-
-  @Autowired
-  private S3Upload s3Upload;
-
-  @Autowired
-  private UserRepository userRepository;
-
+  private final S3Upload s3Upload;
   private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
   @PostMapping("/changepassword")
@@ -68,29 +44,9 @@ public class UserInfoController {
     }
 
 
-    return ResponseEntity.badRequest().body("업데이트 완료 안됌");
+    return ResponseEntity.badRequest().body("업데이트 실패");
   }
 
-  @GetMapping("/{fileName}")
-  public ResponseEntity<Resource> resourceFileDownload(@PathVariable String fileName) {
-    try {
-      Resource resource = resourceLoader
-              .getResource("file:\\C:\\projectbit\\didabara\\didabaraback\\src\\main\\resources\\static\\imgs\\" + fileName);
-      File file = resource.getFile();
-
-      return ResponseEntity.ok()
-              .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getName() + "\"")
-              .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(file.length()))
-              .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF.toString())
-              .body(resource);
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-      return ResponseEntity.badRequest().body(null);
-    } catch (IOException e) {
-      e.printStackTrace();
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
-  }
 
   /**
    * 작성자 : 김남주
@@ -113,51 +69,25 @@ public class UserInfoController {
 
 
   @PostMapping("/upload")
-  public UserInfoEntity upload(@AuthenticationPrincipal String id, @RequestPart MultipartFile files) throws IOException {
-    // db에 저장할 파일 이름 생성
-    String code = UUID.randomUUID().toString().substring(0, 6);
+  public ResponseEntity<?> upload(@AuthenticationPrincipal String id, @RequestPart MultipartFile files) throws IOException {
 
-    // 매개변수로 들어온 파일의 이름 가져오기
-    String sourceFileName = files.getOriginalFilename();
-    // 파일의 확장자 가져오기
-    String sourceFileNameExtension = FilenameUtils.getExtension(sourceFileName).toLowerCase();
+    UserInfoEntity findUser = userInfoService.uploadRootFile(id, files);
 
-    File destinationFile;
-    String destinationFileName;
-    String fileUrl = "C:\\projectbit\\didabara\\didabaraback\\src\\main\\resources\\static\\imgs\\";
-//    String fileUrl = "https://didabara.s3.ap-northeast-2.amazonaws.com/myfile/";
-
-    do {
-      destinationFileName = code + "." + sourceFileNameExtension;
-      destinationFile = new File(fileUrl + destinationFileName);
-    } while (destinationFile.exists());
-
-    destinationFile.getParentFile().mkdirs();
-    files.transferTo(destinationFile);
-
-    Long userid = Long.valueOf(id);
-
-
-    UserInfoEntity findUser = userInfoRepository.findById(userid).orElseThrow(() ->
-            new IllegalArgumentException("해당 아이디가 없습니다."));
-
-    findUser.setFilename(destinationFileName);
-    findUser.setProfileImageUrl(fileUrl);
-    findUser.setFileOriName(sourceFileName);
-
-    userInfoRepository.save(findUser);
-    return findUser;
+    return ResponseEntity.ok().body(findUser);
 
   }
 
-  // 내 정보 보기
+  /**
+   * @param id token
+   * @return UserInfoEntity, UserEntity
+   */
   @GetMapping
   public ResponseEntity<?> myPage(@AuthenticationPrincipal String id) {
     log.info("id={}", id);
     Long userid = Long.valueOf(id);
 
     // id로 내 정보 찾아오기 (user 테이블 user_info 테이블 조인)
-    Map byIdMyPage = userInfoService.findByIdMyPage(userid);
+    Map<String, UserInfoEntity> byIdMyPage = userInfoService.findByIdMyPage(userid);
 
     byIdMyPage.put("password", null);
 
@@ -172,19 +102,12 @@ public class UserInfoController {
    *
    * @param id  JWT id
    * @param uid 컬럼명들
-   * @return
+   * @return 업데이트 유저
    */
   @PatchMapping
-  public ResponseEntity<?> updateMyPage(@AuthenticationPrincipal String id, @RequestBody UserUserInfoDTO uid) {
-
-    String s = uid.toString();
-    System.out.println("s = " + s);
-    // s = nickname:dwkow job:null password:1111 username:adwddawd realName:dwdadw
-
+  public ResponseEntity<?> updateMyPage(@AuthenticationPrincipal String id, @RequestBody UserAndUserInfoDTO uid) {
 
     int checkRow = userInfoService.updateMyPage(id, uid);
-
-    System.out.println("checkRow = " + checkRow);
 
     if (checkRow < 2) {
       return ResponseEntity.badRequest().body("업데이트 실패");
@@ -198,8 +121,8 @@ public class UserInfoController {
    * 작성자 : 김남주
    * 메서드 기능 : 회원 탈퇴
    *
-   * @param id
-   * @return
+   * @param id token
+   * @return int 삭제가 반영된 행의 갯수
    */
   @DeleteMapping
   public ResponseEntity<?> deleteMypage(@AuthenticationPrincipal String id) {
@@ -209,6 +132,7 @@ public class UserInfoController {
       return ResponseEntity.ok().body(delete);
     } catch (Exception e) {
       String error = e.getMessage();
+      log.error("deleteMypage()={}", error);
       return ResponseEntity.badRequest().body(error);
     }
 
@@ -227,7 +151,6 @@ public class UserInfoController {
    * @param svgName svg 파일 이름
    * @param id      유저 토큰 아이디
    * @return UserInfoEntity 업데이트된 유저 정보
-   * @throws IOException
    */
   @PatchMapping("/svg")
   private ResponseEntity<?> uploadSvg(@RequestParam("svgname") String svgName, @AuthenticationPrincipal String id) {

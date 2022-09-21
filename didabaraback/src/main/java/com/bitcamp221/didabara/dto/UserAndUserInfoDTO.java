@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-public class UserUserInfoDTO {
+public class UserAndUserInfoDTO {
 
   private String nickname;
   private String job;
