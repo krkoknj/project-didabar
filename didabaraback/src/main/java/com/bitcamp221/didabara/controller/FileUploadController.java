@@ -91,20 +91,6 @@ public class FileUploadController {
 
   @GetMapping
   public ResponseEntity<?> getMyFile(@AuthenticationPrincipal String id) throws Exception {
-//        System.out.println("id = " + id);
-//
-//        Optional<UserInfoEntity> byId = userInfoRepository.findById(Long.valueOf(id));
-//
-//        String filename = byId.get().getFilename();
-//        String profileImageUrl = byId.get().getProfileImageUrl();
-//        String wordFileName = profileImageUrl + filename;
-//        System.out.println("wordFileName = " + wordFileName);
-//
-//        String pdfCode = "toPDF" + UUID.randomUUID().toString().substring(0, 6);
-//
-//        String toPdfFileName = profileImageUrl + pdfCode + ".pdf";
-//        System.out.println("toPdfFileName = " + toPdfFileName);
-
 
     URI fileToBeDownloaded = new URI("s3://didabara/myfile/b11a0412-4027-469e-a02f-98f646e36c6e.docx");
 

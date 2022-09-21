@@ -61,7 +61,19 @@ public class UserService {
       log.warn("Nickname already exists {}", nickname);
       throw new RuntimeException("Nickname already exists");
     }
-    return userRepository.save(userEntity);
+
+    UserEntity savedUser = userRepository.save(userEntity);
+
+    UserInfoEntity userInfoEntity = UserInfoEntity.builder()
+            .id(savedUser.getId())
+            .fileOriName("default.jpg")
+            .profileImageUrl("https://didabara.s3.ap-northeast-2.amazonaws.com/myfile/")
+            .filename("def54545-1d55-43b5-9f69-eb15c7ebe43f.jpg")
+            .job("")
+            .build();
+
+    userInfoRepository.save(userInfoEntity);
+    return savedUser;
   }
 
   //  아이디 & 비밀번호 일치 확인

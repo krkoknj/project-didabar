@@ -52,7 +52,7 @@ public interface UserInfoMapper {
   int insert(@Param("user") UserInfoEntity userInfo);
 
   @Update("UPDATE user_info SET ban = #{user.ban} WHERE id = #{user.id}")
-  int updateBan(@Param("user") UserInfoEntity userInfo);
+  UserInfoEntity updateBan(@Param("user") UserInfoEntity userInfo);
 
   @Select("SELECT * FROM user_info " +
           "JOIN user " +

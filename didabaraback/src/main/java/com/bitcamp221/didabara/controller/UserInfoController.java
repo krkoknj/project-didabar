@@ -104,22 +104,9 @@ public class UserInfoController {
    */
   @GetMapping("/admin/{userId}")
   public ResponseEntity<?> adminBan(@AuthenticationPrincipal String id, @PathVariable String userId) {
-    // 권한 체크
-    UserInfoEntity admin = userInfoMapper.findByIdInUserInfo(id);
-    if (admin.getRole() != 1) {
-      return ResponseEntity.badRequest().body("관리자가 아닙니다.");
-    }
 
-    // 밴 체크
-    UserInfoEntity byIdInUser = userInfoMapper.findByIdInUserInfo(userId);
+    UserInfoEntity byIdInUser = userInfoService.amdinCheckAndBan(id, userId);
 
-    if (byIdInUser.isBan() == false) {
-      byIdInUser.setBan(true);
-      userInfoMapper.updateBan(byIdInUser);
-    } else {
-      byIdInUser.setBan(false);
-      userInfoMapper.updateBan(byIdInUser);
-    }
 
     return ResponseEntity.ok().body(byIdInUser);
   }

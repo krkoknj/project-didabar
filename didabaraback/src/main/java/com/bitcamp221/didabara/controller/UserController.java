@@ -5,7 +5,6 @@ import com.bitcamp221.didabara.dto.ResponseDTO;
 import com.bitcamp221.didabara.dto.UserDTO;
 import com.bitcamp221.didabara.model.EmailConfigEntity;
 import com.bitcamp221.didabara.model.UserEntity;
-import com.bitcamp221.didabara.model.UserInfoEntity;
 import com.bitcamp221.didabara.presistence.EmailConfigRepository;
 import com.bitcamp221.didabara.presistence.UserInfoRepository;
 import com.bitcamp221.didabara.presistence.UserRepository;
@@ -21,7 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -43,20 +41,16 @@ public class UserController {
   @Autowired
   private EmailConfigRepository emailConfigRepository;
 
-//  @Autowired
-//  NotificationService notificationService;
 
   //  회원가입
 //  http://localhost:8080/auth/signup
   @PostMapping("/signup")
   public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
     try {
-//      받은 데이터 유효성 검사
       if (userDTO == null || userDTO.getPassword() == null) {
         throw new RuntimeException("Invalid Password value");
       }
-//
-//      요청을 이용해 저장할 유저 객체 생성
+      //요청을 이용해 저장할 유저 객체 생성
       UserEntity userEntity = UserEntity.builder()
               .username(userDTO.getUsername())
               .password(passwordEncoder.encode(userDTO.getPassword()))
@@ -65,23 +59,10 @@ public class UserController {
               .phoneNumber(userDTO.getPhoneNumber())
               .build();
 
-//      서비스를 이용해 리포지터리에 유저 저장
+      //서비스를 이용해 리포지터리에 유저 저장
       UserEntity registeredUser = userService.creat(userEntity);
 
 
-      // 회원가입한 id값 가져가서 user_info 테이블 생성
-      UserInfoEntity userInfoEntity = UserInfoEntity.builder()
-              .id(registeredUser.getId())
-              .fileOriName("default.jpg")
-              .profileImageUrl("https://didabara.s3.ap-northeast-2.amazonaws.com/myfile/")
-              .filename("def54545-1d55-43b5-9f69-eb15c7ebe43f.jpg")
-              .job("")
-              .build();
-
-      userInfoRepository.save(userInfoEntity);
-
-
-      //응답객체 만들기(패스워드 제외)
       UserDTO responseUserDTO = UserDTO.builder()
               .id(registeredUser.getId())
               .username(registeredUser.getUsername())
@@ -115,42 +96,27 @@ public class UserController {
       if (user == null) {
         throw new Exception("찾은 사용자가 없습니다.");
       }
+      EmailConfigEntity byId = emailConfigRepository.findById(user.getId())
+              .orElseThrow(() -> new RuntimeException("인증 필요한 유저"));
     } catch (Exception e) {
       return ResponseEntity.badRequest().body(e.getMessage());
     }
 
-    Optional<EmailConfigEntity> byId = emailConfigRepository.findById(user.getId());
 
-    if (byId.isPresent()) {
-      if (byId.get().getCheck() == false) {
-        return ResponseEntity.badRequest().body("인증 필요한 유저");
-      }
-    }
+    //    토큰 생성.
+    final String token = tokenProvider.create(user);
+
+    log.info("usertoken={}", token);
 
 
-    if (user != null) {
-      //    토큰 생성.
-      final String token = tokenProvider.create(user);
+    final UserDTO responseUserDTO = UserDTO.builder()
+            .id(user.getId())
+            .username(user.getUsername())
+            .nickname(user.getNickname())
+            .token(token)
+            .build();
 
-      log.info("usertoken={}", token);
-
-
-      final UserDTO responsUserDTO = UserDTO.builder()
-              .id(user.getId())
-              .username(user.getUsername())
-              .nickname(user.getNickname())
-              .token(token)
-              .build();
-
-      return ResponseEntity.ok().body(responsUserDTO);
-    } else {
-      ResponseDTO responseDTO = ResponseDTO.builder()
-              .error("Login Failed")
-              .build();
-
-      return ResponseEntity.badRequest().body(responseDTO);
-    }
-
+    return ResponseEntity.ok().body(responseUserDTO);
   }
 
 
@@ -174,7 +140,7 @@ public class UserController {
               .password(passwordEncoder.encode(userDTO.getPassword()))
               .phoneNumber(userDTO.getPhoneNumber())
               .build();
-      
+
       UserEntity updatedUser = userService.update(userEntity);
 
       UserDTO ResponseUserDTO = UserDTO.builder()

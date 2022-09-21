@@ -108,4 +108,20 @@ public class UserInfoService {
 
     return userInfoRepository.save(byId);
   }
+
+  public UserInfoEntity amdinCheckAndBan(String id, String userId) throws IllegalStateException {
+
+    UserInfoEntity admin = userInfoMapper.findByIdInUserInfo(id);
+
+    if (admin.getRole() != 1) {
+      throw new IllegalArgumentException("관리자가 아닙니다.");
+    }
+
+    // 밴 체크
+    UserInfoEntity byIdInUser = userInfoMapper.findByIdInUserInfo(userId);
+
+    byIdInUser.setBan(!byIdInUser.isBan());
+    return userInfoMapper.updateBan(byIdInUser);
+
+  }
 }
