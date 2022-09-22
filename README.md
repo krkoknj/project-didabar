@@ -1,7 +1,7 @@
 # project-didabara
 
 ## 문서를 공유하고 일정 관리를 도와주는 웹 어플리케이션 입니다.
-노션링크 걸기
+### https://stream-seagull-0fe.notion.site/e8b3578bc83d4896aed16354b71564d5
 
 ## 사용 기술
 
