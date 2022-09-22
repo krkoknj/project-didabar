@@ -30,17 +30,9 @@ public class SmsService {
     String code = UUID.randomUUID().toString().substring(0, 6);
 
     String username = userMapper.findUserPhoneNumber(phoneNum);
-    System.out.println("username = " + username);
 
-//        List<MultipartFile>
 
-    // 4 params(to, from, type, text) are mandatory. must be filled
-    HashMap<String, String> params = new HashMap<String, String>();
-    params.put("to", phoneNum);    // 수신전화번호
-    params.put("from", "핸드폰 번호");    // 발신전화번호. 테스트시에는 발신,수신 둘다 본인 번호로 하면 됨
-    params.put("type", "SMS");
-    params.put("text", "didabara 휴대폰인증 테스트 메시지 : 인증번호는" + "[" + code + "]" + "입니다.");
-    params.put("app_version", "test app 1.2"); // application name and version
+    HashMap<String, String> params = getStringStringHashMap(phoneNum, code);
 
     try {
       JSONObject send = coolsms.send(params);
@@ -60,11 +52,31 @@ public class SmsService {
     // 인증코드 6자리 생성
     String code = UUID.randomUUID().toString().substring(0, 6);
 
-    String username = userMapper.findUserPhoneNumber(phoneNum);
-    System.out.println("username = " + username);
+    HashMap<String, String> params = getStringStringHashMap(phoneNum, code);
 
-//        List<MultipartFile>
+    try {
+      JSONObject send = coolsms.send(params);
+      String tempPassword = UUID.randomUUID().toString().substring(0, 8);
 
+      UserEntity byPhoneNumber = userRepository.findByPhoneNumber(phoneNum);
+
+      String[] usernameAndcode = new String[3];
+      usernameAndcode[0] = code;
+      usernameAndcode[1] = byPhoneNumber.getUsername();
+      usernameAndcode[2] = tempPassword;
+
+      String encodePwd = passwordEncoder.encode(tempPassword);
+      byPhoneNumber.setPassword(encodePwd);
+
+      userRepository.save(byPhoneNumber);
+
+      return usernameAndcode;
+    } catch (CoolsmsException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private HashMap<String, String> getStringStringHashMap(String phoneNum, String code) {
     // 4 params(to, from, type, text) are mandatory. must be filled
     HashMap<String, String> params = new HashMap<String, String>();
     params.put("to", phoneNum);    // 수신전화번호
@@ -72,25 +84,7 @@ public class SmsService {
     params.put("type", "SMS");
     params.put("text", "didabara 휴대폰인증 테스트 메시지 : 인증번호는" + "[" + code + "]" + "입니다.");
     params.put("app_version", "test app 1.2"); // application name and version
-
-    try {
-      JSONObject send = coolsms.send(params);
-      String tempPassword = UUID.randomUUID().toString().substring(0, 8);
-      String[] usernameAndcode = new String[3];
-      usernameAndcode[0] = code;
-      usernameAndcode[1] = username;
-      usernameAndcode[2] = tempPassword;
-
-      UserEntity byPhoneNumber = userRepository.findByPhoneNumber(phoneNum);
-      String encodePwd = passwordEncoder.encode(tempPassword);
-      byPhoneNumber.setPassword(encodePwd);
-
-      UserEntity save = userRepository.save(byPhoneNumber);
-
-      return usernameAndcode;
-    } catch (CoolsmsException e) {
-      throw new RuntimeException(e);
-    }
+    return params;
   }
 
   public UserEntity userPhoneAndName(String userPhoneNum, String realName) {
