@@ -114,4 +114,23 @@ public class EmailConfigService {
     mailSender.send(m);
 
   }
+
+  public String checkCode(Map<String, String> emailAuthCodeMap) {
+    UserEntity findUser = userRepository.findByUsername(emailAuthCodeMap.get("username"));
+    EmailConfigEntity emailConfig = null;
+    try {
+
+      emailConfig = emailConfigRepository.findById(findUser.getId()).orElseThrow(() ->
+              new IllegalArgumentException("해당 아이디가 없습니다."));
+
+    } catch (IllegalArgumentException e) {
+      String msg = e.getMessage();
+      log.error("checkEmail={}", msg);
+      throw new IllegalArgumentException("해당 아이디가 없습니다.");
+    }
+    emailConfig.setCheck(true);
+    emailConfigRepository.save(emailConfig);
+
+    return "코드 인증 확인";
+  }
 }

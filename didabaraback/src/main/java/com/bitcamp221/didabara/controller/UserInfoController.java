@@ -3,7 +3,6 @@ package com.bitcamp221.didabara.controller;
 import com.bitcamp221.didabara.dto.S3Upload;
 import com.bitcamp221.didabara.dto.UserAndUserInfoDTO;
 import com.bitcamp221.didabara.model.UserInfoEntity;
-import com.bitcamp221.didabara.presistence.UserInfoRepository;
 import com.bitcamp221.didabara.service.UserInfoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +24,6 @@ import java.util.Map;
 public class UserInfoController {
 
   private final UserInfoService userInfoService;
-  private final UserInfoRepository userInfoRepository;
-
   private final S3Upload s3Upload;
   private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 

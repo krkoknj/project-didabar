@@ -4,14 +4,11 @@ package com.bitcamp221.didabara.controller;
 import com.bitcamp221.didabara.dto.ResponseDTO;
 import com.bitcamp221.didabara.dto.UserDTO;
 import com.bitcamp221.didabara.model.UserEntity;
-import com.bitcamp221.didabara.presistence.EmailConfigRepository;
-import com.bitcamp221.didabara.presistence.UserInfoRepository;
-import com.bitcamp221.didabara.presistence.UserRepository;
 import com.bitcamp221.didabara.security.TokenProvider;
 import com.bitcamp221.didabara.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,24 +19,13 @@ import java.io.IOException;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("auth")
 public class UserController {
 
-  @Autowired
-  private UserService userService;
-  @Autowired
-  private UserRepository userRepository;
-  @Autowired
-  private UserInfoRepository userInfoRepository;
-
-  private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-  @Autowired
-  private TokenProvider tokenProvider;
-
-  @Autowired
-  private EmailConfigRepository emailConfigRepository;
-
+  private final UserService userService;
+  private final TokenProvider tokenProvider;
+  private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
   //  회원가입
 //  http://localhost:8080/auth/signup
@@ -95,6 +81,7 @@ public class UserController {
       if (user == null) {
         throw new Exception("찾은 사용자가 없습니다.");
       }
+      // 계정문제로 주석 처리.
       /*EmailConfigEntity byId = emailConfigRepository.findById(user.getId())
               .orElseThrow(() -> new RuntimeException("인증 필요한 유저"));*/
     } catch (Exception e) {

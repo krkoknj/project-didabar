@@ -1,7 +1,5 @@
 package com.bitcamp221.didabara.controller;
 
-import com.bitcamp221.didabara.model.EmailConfigEntity;
-import com.bitcamp221.didabara.model.UserEntity;
 import com.bitcamp221.didabara.presistence.EmailConfigRepository;
 import com.bitcamp221.didabara.presistence.UserRepository;
 import com.bitcamp221.didabara.service.EmailConfigService;
@@ -45,20 +43,14 @@ public class EmailConfigController {
     boolean checkEmail = emailConfigService.checkEmail(emailAuthCodeMap);
 
     if (checkEmail) {
-      UserEntity findUser = userRepository.findByUsername(emailAuthCodeMap.get("username"));
-      EmailConfigEntity emailConfig = null;
+      String checkCodeMessage = null;
       try {
-        emailConfig = emailConfigRepository.findById(findUser.getId()).orElseThrow(() ->
-                new IllegalArgumentException("해당 아이디가 없습니다."));
-      } catch (IllegalArgumentException e) {
-        String msg = e.getMessage();
-        log.error("checkEmail={}", msg);
-        return ResponseEntity.badRequest().body("해당 아이디가 없습니다.");
+        checkCodeMessage = emailConfigService.checkCode(emailAuthCodeMap);
+      } catch (Exception e) {
+        log.error(e.getMessage());
+        return ResponseEntity.badRequest().body(e.getMessage());
       }
-      emailConfig.setCheck(true);
-      emailConfigRepository.save(emailConfig);
-
-      return ResponseEntity.ok().body("코드 인증 확인");
+      return ResponseEntity.ok().body(checkCodeMessage);
     }
     return ResponseEntity.badRequest().body("코드 인증 불일치");
   }
@@ -66,8 +58,9 @@ public class EmailConfigController {
   /**
    * 작성자 : 김남주
    * 메서드 기능 : 회원 가입한 사람의 이메일을 받아서 인증 코드 전송
+   * http://localhost:8080/email/testidi21233@gmail.com
    *
-   * @param email http://localhost:8080/email/testidi21233@gmail.com
+   * @param email testidi21233@gmail.com
    * @return String 전송 완료 or 전송 실패
    */
   @GetMapping("/{email}")
