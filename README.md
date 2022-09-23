@@ -5,8 +5,10 @@
 ### 노션 링크
 ### https://stream-seagull-0fe.notion.site/Didabara-project-fd63f80b05ff476b814b45294b7c2fa5
 
-## 사용 기술
+### ERD 다이어그램
+![Didabara ERD](https://user-images.githubusercontent.com/98901579/191989160-279fcd0e-8973-4415-9944-a77aa8ebfea5.png)
 
+## 사용 기술
 ### Back-End
 
 - `Java` `Spring boot`
