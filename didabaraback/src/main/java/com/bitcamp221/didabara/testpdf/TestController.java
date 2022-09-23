@@ -97,6 +97,7 @@ public class TestController {
   @PostMapping("/test")
   public ResponseEntity test2(@RequestParam("file") MultipartFile file) throws IOException {
     // pptx,xlsx to pdf and s3upload
+    String myPath = "C:\\Users\\nj\\Downloads\\";
 
     // C:\Users\nj\Downloads\Conholdate.Total_For_Java\GroupDocs.Total_for_Java\GroupDocs.Conversion_21.7-Java\GroupDocs.Conversion_21.7-Java\lib\groupdocs-conversion-21.7.jar
     // word 파일임을 알려주기 위해 Word 옵션 생성
@@ -104,20 +105,21 @@ public class TestController {
 
     // MutipartFile 을 File로 변환
     File uploadFile = convert(file).orElseThrow(() -> new IllegalArgumentException("file 전달에 실패했습니다."));
-
-    // GroupDocs Converter에 File로 변환한 값의 toString(), word 파일옵션 넣어주기
+    System.out.println("uploadFile.toString() = " + uploadFile.toString());
+    // GroupDocs Converter에 File로 변환한 값의 toString() (파일경로), word 파일옵션 넣어주기
     Converter converter = new Converter(uploadFile.toString(), loadOptions);
 
 
     // Pdf로 변환 하기 위해 옵션 생성
     PdfConvertOptions options = new PdfConvertOptions();
     String code = UUID.randomUUID().toString().substring(0, 6);
-    // file로 들어온 ppt를 pdf로 변환
-    converter.convert("C:\\Users\\nj\\Downloads\\" + code + ".pdf", options);
+    // file로 들어온 ppt,xlsx 를 pdf로 변환
+    converter.convert(myPath + code + ".pdf", options);
 
 
     // pdf로 변환한 파일 가져와서 지우기
-    File newFile = new File("C:\\Users\\nj\\Downloads\\" + code + ".pdf");
+    File newFile = new File(myPath + code + ".pdf");
+    System.out.println("newFile.toString() = " + newFile.toString());
     // true면 삭제 성공
     boolean delete = uploadFile.delete();
     // s3upload
@@ -125,11 +127,14 @@ public class TestController {
   }
 
   private Optional<File> convert(MultipartFile file) throws IOException {
+    // 현재 디렉토리를 가져와서 / + file의 이름을 붙여서 생성.
     File convertFile = new File(System.getProperty("user.dir") + "/" + file.getOriginalFilename());
     System.out.println("convertFile = " + convertFile);
-    System.out.println("convertFile.getName() = " + convertFile.getName()); //download.jpg
+    System.out.println("convertFile.getName() = " + convertFile.getName()); // ex) download.jpg
     if (convertFile.createNewFile()) {
+      // FileOutpusStream 은 무조건 해당파일을 생성함. 존재하는 파일일 경우 덮어 쓰기.
       try (FileOutputStream fos = new FileOutputStream(convertFile)) {
+        // 입력받은 내용을 파일 내용으로 기록함.
         fos.write(file.getBytes());
       }
       return Optional.of(convertFile);

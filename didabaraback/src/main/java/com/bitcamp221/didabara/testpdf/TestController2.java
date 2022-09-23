@@ -1,3 +1,4 @@
+/*
 package com.bitcamp221.didabara.testpdf;
 
 import com.bitcamp221.didabara.dto.S3Upload;
@@ -86,25 +87,26 @@ public class TestController2 {
     }
   }
 
-  @PostMapping("/test")
+  @PostMapping("/upload/test")
   public ResponseEntity test2(MultipartFile file) throws IOException {
 //     C:\Users\nj\Downloads\Conholdate.Total_For_Java\GroupDocs.Total_for_Java\GroupDocs.Conversion_21.7-Java\GroupDocs.Conversion_21.7-Java\lib\groupdocs-conversion-21.7.jar
     String userId = "1";
     WordProcessingLoadOptions loadOptions = new WordProcessingLoadOptions();
 
+    // MultipartFile 을 로컬에 저장하여 File 객체로 만듬
     File uploadFile = new File("C:\\Users\\nj\\Downloads\\" + file.getOriginalFilename());
 
     try (FileOutputStream fos = new FileOutputStream(uploadFile)) {
-      log.info("uploadFile.toString()={}", uploadFile.toString());
+
+      // 파일을 읽음
       fos.write(file.getBytes());
+      // 컨버터에 File 객체의
       System.out.println("uploadFile.toString() = " + uploadFile.toString());
       Converter converter = new Converter(uploadFile.toString(), loadOptions);
       ConvertOptions convertOptions = new FileType().fromExtension("pdf").getConvertOptions();
       converter.convertPageByPage(fos, convertOptions);
 
       PdfConvertOptions options = new PdfConvertOptions();
-      Integer pageNumber = options.getPageNumber();
-      System.out.println("pageNumber = " + pageNumber);
 
       String code = UUID.randomUUID().toString().substring(0, 6);
       String pathAndPdf = "C:\\Users\\nj\\Downloads\\" + code + ".pdf";
@@ -142,3 +144,4 @@ public class TestController2 {
     return Optional.empty();
   }
 }
+*/
