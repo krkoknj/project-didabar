@@ -6,9 +6,8 @@ import com.bitcamp221.didabara.model.EmailConfigEntity;
 import com.bitcamp221.didabara.model.UserEntity;
 import com.bitcamp221.didabara.presistence.EmailConfigRepository;
 import com.bitcamp221.didabara.presistence.UserRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -19,29 +18,20 @@ import java.util.UUID;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class EmailConfigService {
 
   private final JavaMailSender mailSender;
-  @Autowired
-  private EmailConfigRepository emailConfigRepository;
-  @Autowired
-  private UserMapper userMapper;
-  @Autowired
-  private EmailConfigMapper emailConfigMapper;
-  @Autowired
-  private UserRepository userRepository;
+  private final EmailConfigRepository emailConfigRepository;
+  private final UserMapper userMapper;
+  private final EmailConfigMapper emailConfigMapper;
+  private final UserRepository userRepository;
 
 
-  /**
-   * 작성자 : 김남주
-   * 빨간줄 보이는게 맞습니다.
-   *
-   * @param mailSender
-   */
-  @Autowired
-  public EmailConfigService(@Lazy JavaMailSender mailSender) {
+  /*public EmailConfigService(@Lazy JavaMailSender mailSender, EmailConfigRepository emailConfigRepository, UserMapper userMapper) {
     this.mailSender = mailSender;
-  }
+
+  }*/
 
   /**
    * 작성자 : 김남주
