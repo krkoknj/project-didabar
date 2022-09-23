@@ -1,7 +1,6 @@
 package com.bitcamp221.didabara.service;
 
 import com.bitcamp221.didabara.dto.UserDTO;
-import com.bitcamp221.didabara.mapper.EmailConfigMapper;
 import com.bitcamp221.didabara.mapper.UserMapper;
 import com.bitcamp221.didabara.model.UserEntity;
 import com.bitcamp221.didabara.model.UserInfoEntity;
@@ -10,8 +9,8 @@ import com.bitcamp221.didabara.presistence.UserRepository;
 import com.bitcamp221.didabara.security.TokenProvider;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,20 +23,15 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class UserService {
 
-  @Autowired
-  private UserRepository userRepository;
-  @Autowired
-  private UserMapper userMapper;
-  @Autowired
-  private EmailConfigMapper emailConfigMapper;
-  @Autowired
-  private UserInfoRepository userInfoRepository;
+  private final UserRepository userRepository;
+  private final UserMapper userMapper;
+  private final UserInfoRepository userInfoRepository;
 
-  @Autowired
-  private TokenProvider tokenProvider;
+  private final TokenProvider tokenProvider;
 
   private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
