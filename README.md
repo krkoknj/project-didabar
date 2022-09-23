@@ -5,8 +5,11 @@
 ### 노션 링크
 ### https://stream-seagull-0fe.notion.site/Didabara-project-fd63f80b05ff476b814b45294b7c2fa5
 
-## 사용 기술
+### ERD 다이어그램
+[Database ER diagram (crow's foot).pdf](https://github.com/krkoknj/project-didabara/files/9634702/Database.ER.diagram.crow.s.foot.pdf)
 
+
+## 사용 기술
 ### Back-End
 
 - `Java` `Spring boot`
