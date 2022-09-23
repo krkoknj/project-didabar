@@ -29,17 +29,13 @@ import java.util.UUID;
 @PropertySource(value = "application.properties")
 public class S3UploadTest {
 
+  private final AmazonS3Client s3Client;
   @Autowired
   private UserInfoRepository userInfoRepository;
-
   @Autowired
   private UserInfoMapper userInfoMapper;
-
   @Value("${cloud.aws.s3.bucket}")
   private String bucket;
-
-  private final AmazonS3Client s3Client;
-
 
   public String getS3(String bucket, String fileName) {
 
@@ -71,6 +67,7 @@ public class S3UploadTest {
 
   public String upload(File uploadFile, String dirName) {
     String fileName = dirName + "/" + uploadFile.getName();
+    System.out.println("fileName = " + fileName);
     String uploadImageURI = putS3(uploadFile, fileName);
     String dBPathName = uploadImageURI.substring(0, 6);
     String extensionName = uploadImageURI.substring(uploadImageURI.lastIndexOf("/") + 1);

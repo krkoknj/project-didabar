@@ -117,12 +117,8 @@ public class TestController {
     converter.convert(myPath + code + ".pdf", options);
 
 
-    // pdf로 변환한 파일 가져와서 지우기
     File newFile = new File(myPath + code + ".pdf");
     System.out.println("newFile.toString() = " + newFile.toString());
-    // true면 삭제 성공
-    boolean delete = uploadFile.delete();
-    // s3upload
     return ResponseEntity.ok().body(s3UploadTest.upload(newFile, "myfile"));
   }
 
