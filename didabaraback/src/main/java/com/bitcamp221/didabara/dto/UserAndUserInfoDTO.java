@@ -16,6 +16,8 @@ public class UserAndUserInfoDTO {
   private String realName;
   private String phoneNumber;
 
+  private String message;
+
   @Override
   public String toString() {
     return "nickname:" + nickname + " job:" + job + " password:" + password + " username:" + username + " realName:" + realName + "phoneNumber: " + phoneNumber;

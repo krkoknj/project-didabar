@@ -28,7 +28,7 @@ public class UserInfoController {
   private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
   @PostMapping("/changepassword")
-  public ResponseEntity<?> getMyPassword(@AuthenticationPrincipal String id, @RequestBody Map<String, String> map) {
+  public ResponseEntity<String> getMyPassword(@AuthenticationPrincipal String id, @RequestBody Map<String, String> map) {
 
     try {
       if (userInfoService.checkAndChange(id, map, passwordEncoder)) {
@@ -56,7 +56,7 @@ public class UserInfoController {
    * @return UserInfoEntity
    */
   @GetMapping("/admin/{userId}")
-  public ResponseEntity<?> adminBan(@AuthenticationPrincipal String id, @PathVariable String userId) {
+  public ResponseEntity<UserInfoEntity> adminBan(@AuthenticationPrincipal String id, @PathVariable String userId) {
 
     UserInfoEntity byIdInUser = userInfoService.amdinCheckAndBan(id, userId);
 
@@ -66,7 +66,7 @@ public class UserInfoController {
 
 
   @PostMapping("/upload")
-  public ResponseEntity<?> upload(@AuthenticationPrincipal String id, @RequestPart MultipartFile files) throws IOException {
+  public ResponseEntity<UserInfoEntity> upload(@AuthenticationPrincipal String id, @RequestPart MultipartFile files) throws IOException {
 
     UserInfoEntity findUser = userInfoService.uploadRootFile(id, files);
 
@@ -79,7 +79,7 @@ public class UserInfoController {
    * @return UserInfoEntity, UserEntity
    */
   @GetMapping
-  public ResponseEntity<?> myPage(@AuthenticationPrincipal String id) {
+  public ResponseEntity<Map<String, UserInfoEntity>> myPage(@AuthenticationPrincipal String id) {
     log.info("id={}", id);
     Long userid = Long.valueOf(id);
 
@@ -102,15 +102,19 @@ public class UserInfoController {
    * @return 업데이트 유저
    */
   @PatchMapping
-  public ResponseEntity<?> updateMyPage(@AuthenticationPrincipal String id, @RequestBody UserAndUserInfoDTO uid) {
+  public ResponseEntity<String> updateMyPage(@AuthenticationPrincipal String id, @RequestBody UserAndUserInfoDTO uid) {
 
     int checkRow = userInfoService.updateMyPage(id, uid);
 
     if (checkRow < 2) {
+
+//      return ResponseEntity.<String>badRequest().body("업데이트 실패");
+
       return ResponseEntity.badRequest().body("업데이트 실패");
     }
 
-    return ResponseEntity.ok().body(uid);
+
+    return ResponseEntity.ok().body("업데이트 완료");
   }
 
 
@@ -119,17 +123,20 @@ public class UserInfoController {
    * 메서드 기능 : 회원 탈퇴
    *
    * @param id token
-   * @return int 삭제가 반영된 행의 갯수
+   * @return String 삭제 실패, 완료
    */
   @DeleteMapping
-  public ResponseEntity<?> deleteMypage(@AuthenticationPrincipal String id) {
+  public ResponseEntity<String> deleteMyPage(@AuthenticationPrincipal String id) {
 
     try {
-      int delete = userInfoService.delete(id);
-      return ResponseEntity.ok().body(delete);
+      if (userInfoService.delete(id) == 0) {
+        return ResponseEntity.badRequest().body("삭제 실패");
+      } else {
+        return ResponseEntity.ok().body("삭제 완료");
+      }
     } catch (Exception e) {
       String error = e.getMessage();
-      log.error("deleteMypage()={}", error);
+      log.error("deleteMyPage()={}", error);
       return ResponseEntity.badRequest().body(error);
     }
 
@@ -137,8 +144,8 @@ public class UserInfoController {
 
 
   @PostMapping
-  private ResponseEntity<?> uploadText(@RequestParam("images") MultipartFile files,
-                                       @AuthenticationPrincipal String id) throws IOException {
+  private ResponseEntity<String> uploadText(@RequestParam("images") MultipartFile files,
+                                            @AuthenticationPrincipal String id) throws IOException {
     return ResponseEntity.ok().body(s3Upload.upload(files, "myfile", id));
   }
 
@@ -160,6 +167,7 @@ public class UserInfoController {
       log.error("uploadSvg()={}", message);
       return ResponseEntity.badRequest().body(message);
     }
+
 
     return ResponseEntity.ok().body(updatedUserInfoEntity);
   }

@@ -18,4 +18,6 @@ public class ResponseDTO<T> {
    */
   private String error;
   private List<T> resList;
+  private T data;
+
 }

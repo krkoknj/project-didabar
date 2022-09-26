@@ -33,6 +33,8 @@ public class UserInfoService {
 
     UserAndUserInfoDTO byDTO = userInfoMapper.findByDTO(id);
 
+    System.out.println("byDTO = " + byDTO);
+
     if (uid.getNickname() == null) {
       uid.setNickname(byDTO.getNickname());
     }
@@ -43,6 +45,10 @@ public class UserInfoService {
 
     if (uid.getRealName() == null) {
       uid.setRealName(byDTO.getRealName());
+    }
+
+    if (uid.getPhoneNumber() == null) {
+      uid.setPhoneNumber(byDTO.getPhoneNumber());
     }
 
     if (uid.getPassword() == null) {
