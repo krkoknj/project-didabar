@@ -1,5 +1,6 @@
 package com.bitcamp221.didabara.model;
 
+import com.bitcamp221.didabara.dto.UserInfoDTO;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -42,4 +43,17 @@ public class UserInfoEntity extends BaseTimeEntity {
 
   @Column(name = "file_ori_name", length = 100)
   private String fileOriName;
+
+  public static UserInfoEntity toEntity(UserInfoDTO userInfoDTO) {
+
+    return UserInfoEntity.builder()
+            .id(userInfoDTO.getId())
+            .job(userInfoDTO.getJob())
+            .role(userInfoDTO.getRole())
+            .ban(userInfoDTO.isBan())
+            .profileImageUrl(userInfoDTO.getProfileImageUrl())
+            .filename(userInfoDTO.getFilename())
+            .fileOriName(userInfoDTO.getFileOriName())
+            .build();
+  }
 }

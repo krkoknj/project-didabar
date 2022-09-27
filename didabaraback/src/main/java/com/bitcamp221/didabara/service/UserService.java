@@ -36,7 +36,7 @@ public class UserService {
   private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 
-  public UserEntity creat(final UserEntity userEntity) {
+  public UserDTO creat(final UserEntity userEntity) {
 //    1. userEntity 유효성 검사.
     if (userEntity == null || userEntity.getUsername() == null) {
       throw new RuntimeException("invalid arguments");
@@ -58,6 +58,7 @@ public class UserService {
 
     UserEntity savedUser = userRepository.save(userEntity);
 
+
     UserInfoEntity userInfoEntity = UserInfoEntity.builder()
             .id(savedUser.getId())
             .fileOriName("default.jpg")
@@ -67,7 +68,8 @@ public class UserService {
             .build();
 
     userInfoRepository.save(userInfoEntity);
-    return savedUser;
+    String token = tokenProvider.create(savedUser);
+    return savedUser.toDTO(token);
   }
 
   //  아이디 & 비밀번호 일치 확인
@@ -222,23 +224,18 @@ public class UserService {
 
       userRepository.save(user);
 
-      try {
-        String itemPath = profile_image;
-        BufferedImage image = null;
-        image = ImageIO.read(new URL(itemPath));
-        String fileName = itemPath.substring(itemPath.lastIndexOf("/") + 1);
-        UserInfoEntity userInfo = UserInfoEntity.builder()
-                .fileOriName(fileName)
-                .profileImageUrl("https://didabara.s3.ap-northeast-2.amazonaws.com/myfile/")
-                .filename("def54545-1d55-43b5-9f69-eb15c7ebe43f.jpg")
-                .id(user.getId())
-                .build();
+      String itemPath = profile_image;
+      BufferedImage image = null;
+      image = ImageIO.read(new URL(itemPath));
+      String fileName = itemPath.substring(itemPath.lastIndexOf("/") + 1);
+      UserInfoEntity userInfo = UserInfoEntity.builder()
+              .fileOriName(fileName)
+              .profileImageUrl("https://didabara.s3.ap-northeast-2.amazonaws.com/myfile/")
+              .filename("def54545-1d55-43b5-9f69-eb15c7ebe43f.jpg")
+              .id(user.getId())
+              .build();
 
-        userInfoRepository.save(userInfo);
-      } catch (IOException e) {
-        String message = e.getMessage();
-        log.error("jpgError={}", message);
-      }
+      userInfoRepository.save(userInfo);
       UserDTO userDTO = new UserDTO(user);
       userDTO.setToken(find_user_token);
 
@@ -255,8 +252,12 @@ public class UserService {
       String find_user_token = tokenProvider.create(user);
       System.out.println("find_user_token = " + find_user_token);
       br.close();
-      UserDTO userDTO = new UserDTO(user);
-      userDTO.setToken(find_user_token);
+      UserDTO userDTO = UserDTO.builder()
+              .id(byUsername.getId())
+              .username(email)
+              .nickname(nickname)
+              .token(find_user_token)
+              .build();
 
       return userDTO;
     }

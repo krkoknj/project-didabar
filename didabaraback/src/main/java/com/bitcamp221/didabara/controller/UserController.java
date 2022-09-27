@@ -35,29 +35,12 @@ public class UserController {
       if (userDTO == null || userDTO.getPassword() == null) {
         throw new RuntimeException("Invalid Password value");
       }
-      //요청을 이용해 저장할 유저 객체 생성
-      UserEntity userEntity = UserEntity.builder()
-              .username(userDTO.getUsername())
-              .password(passwordEncoder.encode(userDTO.getPassword()))
-              .nickname(userDTO.getNickname())
-              .realName(userDTO.getRealName())
-              .phoneNumber(userDTO.getPhoneNumber())
-              .build();
 
-      //서비스를 이용해 리포지터리에 유저 저장
-      UserEntity registeredUser = userService.creat(userEntity);
-
-
-      UserDTO responseUserDTO = UserDTO.builder()
-              .id(registeredUser.getId())
-              .username(registeredUser.getUsername())
-              .nickname(registeredUser.getNickname())
-              .build();
+      UserDTO registeredUser = userService.creat(userDTO.toEntity());
 
       log.info("회원가입 완료");
 
-
-      return ResponseEntity.ok().body(responseUserDTO);
+      return ResponseEntity.ok().body(registeredUser);
 
     } catch (Exception e) {
       ResponseDTO responseDTO = ResponseDTO.builder().error(e.getMessage()).build();
@@ -69,24 +52,13 @@ public class UserController {
 
   //  로그인
   @PostMapping(value = "/signin")
-  public ResponseEntity<?> authenticate(@RequestBody UserDTO userDTO) {
-    UserEntity user;
-    try {
-      user = userService.getByCredentials(
-              userDTO.getUsername(),
-              userDTO.getPassword(),
-              passwordEncoder
-      );
+  public ResponseEntity<?> authenticate(@RequestBody UserDTO userDTO) throws Exception {
+    UserEntity user = userService.getByCredentials(userDTO.getUsername(), userDTO.getPassword(), passwordEncoder);
 
-      if (user == null) {
-        throw new Exception("찾은 사용자가 없습니다.");
-      }
-      // 계정문제로 주석 처리.
+
+    // 계정문제로 주석 처리.
       /*EmailConfigEntity byId = emailConfigRepository.findById(user.getId())
               .orElseThrow(() -> new RuntimeException("인증 필요한 유저"));*/
-    } catch (Exception e) {
-      return ResponseEntity.badRequest().body(e.getMessage());
-    }
 
 
     //    토큰 생성.
@@ -152,7 +124,7 @@ public class UserController {
 
     boolean checkPwd = userService.checkPwd(userDTO, userId);
 
-    if (checkPwd == false) {
+    if (!checkPwd) {
       return ResponseEntity.badRequest().body("비밀번호가 일치하지 않습니다");
     } else {
       userService.deleteUser(Long.valueOf(userId));
@@ -173,9 +145,8 @@ public class UserController {
     String[] access_Token = userService.getKaKaoAccessToken(code);
     String access_found_in_token = access_Token[0];
     // 배열로 받은 토큰들의 accsess_token만 createKaKaoUser 메서드로 전달
-    UserDTO kakaoUser = userService.createKakaoUser(access_found_in_token);
 
-    return kakaoUser;
+    return userService.createKakaoUser(access_found_in_token);
   }
 
   // https://kauth.kakao.com/oauth/authorize?client_id=4af7c95054f7e1d31cff647965678936&redirect_uri=http://localhost:8080/auth/kakao&response_type=code

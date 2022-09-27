@@ -1,7 +1,7 @@
 package com.bitcamp221.didabara.service;
 
+import com.bitcamp221.didabara.dto.UserDTO;
 import com.bitcamp221.didabara.mapper.UserMapper;
-import com.bitcamp221.didabara.model.UserEntity;
 import com.bitcamp221.didabara.presistence.UserRepository;
 import lombok.RequiredArgsConstructor;
 import net.nurigo.java_sdk.api.Message;
@@ -58,7 +58,7 @@ public class SmsService {
       JSONObject send = coolsms.send(params);
       String tempPassword = UUID.randomUUID().toString().substring(0, 8);
 
-      UserEntity byPhoneNumber = userRepository.findByPhoneNumber(phoneNum);
+      UserDTO byPhoneNumber = userMapper.findByPhoneNumber(phoneNum);
 
       String[] usernameAndcode = new String[3];
       usernameAndcode[0] = code;
@@ -67,12 +67,14 @@ public class SmsService {
 
       String encodePwd = passwordEncoder.encode(tempPassword);
       byPhoneNumber.setPassword(encodePwd);
-
-      userRepository.save(byPhoneNumber);
+      Long id = byPhoneNumber.getId();
+      if (userMapper.updateUserPassword(encodePwd, id) < 1) {
+        throw new IllegalArgumentException("업데이트 실패");
+      }
 
       return usernameAndcode;
     } catch (CoolsmsException e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException(e.getMessage());
     }
   }
 
@@ -87,12 +89,13 @@ public class SmsService {
     return params;
   }
 
-  public UserEntity userPhoneAndName(String userPhoneNum, String realName) {
-    return userRepository.findByPhoneNumberAndRealName(userPhoneNum, realName);
+  public UserDTO userPhoneAndName(String userPhoneNum, String realName) {
+    return userMapper.findByPhoneAndrealName(userPhoneNum, realName);
   }
 
-  public UserEntity userPhoneAndRealname(String userPhoneNum, String realName, String username) {
-    return userRepository.findByPhoneNumberAndRealNameAndUsername(userPhoneNum, realName, username);
+  public UserDTO userPhoneAndRealname(String userPhoneNum, String realName, String username) {
+
+    return userMapper.findByPhoneNumberAndRealNameAndUsername(userPhoneNum, realName, username);
   }
 }
 

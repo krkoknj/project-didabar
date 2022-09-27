@@ -19,6 +19,8 @@ public class UserInfoDTO {
   private int role;
   private boolean ban;
   private String profileImageUrl;
+  private String filename;
+  private String fileOriName;
   private LocalDate createdDate;
   private LocalDate modifiedDate;
 

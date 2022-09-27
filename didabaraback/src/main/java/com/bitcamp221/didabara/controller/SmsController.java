@@ -1,6 +1,6 @@
 package com.bitcamp221.didabara.controller;
 
-import com.bitcamp221.didabara.model.UserEntity;
+import com.bitcamp221.didabara.dto.UserDTO;
 import com.bitcamp221.didabara.presistence.UserRepository;
 import com.bitcamp221.didabara.service.SmsService;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +42,7 @@ public class SmsController {
       return ResponseEntity.badRequest().body("입력해주세요");
     }
 
-    UserEntity byPhoneNumber = smsService.userPhoneAndName(userPhoneNum, realName);
+    UserDTO byPhoneNumber = smsService.userPhoneAndName(userPhoneNum, realName);
 
 
     if (byPhoneNumber.getPhoneNumber().equals(userPhoneNum) && byPhoneNumber.getRealName().equals(realName)) {
@@ -78,10 +78,10 @@ public class SmsController {
   @PostMapping("/findpassword")
   public ResponseEntity<?> checkUserSms(@RequestParam(value = "userPhoneNum", required = false) String userPhoneNum,
                                         @RequestParam(value = "realName", required = false) String realName,
-                                        @RequestParam(value = "username", required = false) String username) {
+                                        @RequestParam(value = "username", required = false) String username) throws IllegalArgumentException, RuntimeException {
 
 
-    UserEntity byPhoneNumber = smsService.userPhoneAndRealname(userPhoneNum, realName, username);
+    UserDTO byPhoneNumber = smsService.userPhoneAndRealname(userPhoneNum, realName, username);
 
     if (byPhoneNumber.getPhoneNumber().equals(userPhoneNum) && byPhoneNumber.getRealName().equals(realName) && byPhoneNumber.getUsername().equals(username)) {
       System.out.println("userPhoneNum = " + userPhoneNum);

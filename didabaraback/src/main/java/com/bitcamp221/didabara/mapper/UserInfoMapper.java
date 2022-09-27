@@ -1,7 +1,8 @@
 package com.bitcamp221.didabara.mapper;
 
+import com.bitcamp221.didabara.dto.ChangePasswordDTO;
 import com.bitcamp221.didabara.dto.UserAndUserInfoDTO;
-import com.bitcamp221.didabara.model.UserEntity;
+import com.bitcamp221.didabara.dto.UserInfoDTO;
 import com.bitcamp221.didabara.model.UserInfoEntity;
 import org.apache.ibatis.annotations.*;
 
@@ -10,8 +11,12 @@ import java.util.Map;
 @Mapper
 public interface UserInfoMapper {
 
-  @Select("SELECT * FROM user WHERE id=#{id}")
-  UserEntity findByIdInUser(@Param("id") String id);
+
+  @Select("SELECT * FROM userinfo WHERE id=#{id}")
+  UserInfoDTO findByIdUserInfo(@Param("id") String id);
+
+  @Update("UPDATE userinfo SET filename=#{uiDTO.filename} WHERE id=#{id}")
+  int updateSvg(@Param("id") String id, @Param("uiDTO") UserInfoDTO uiDTO);
 
 
   @Results({
@@ -21,6 +26,7 @@ public interface UserInfoMapper {
   })
   @Select("SELECT file_ori_name,file_name,profile_image_url FROM user_info WHERE id=#{id}")
   UserInfoEntity findByIdInUserInfo(@Param("id") String id);
+
 
   @Select("SELECT * FROM user_info JOIN user ON user_info.id = user.id WHERE user.id=#{id}")
   Map<String, UserInfoEntity> findByMap(@Param("id") Long id);
@@ -38,6 +44,9 @@ public interface UserInfoMapper {
           "user_info.role = #{map.role} " +
           "WHERE user.id = #{id} ")
   int updateUserInfo(@Param("id") String id, @Param("map") Map map);
+
+  @Update("UPDATE user SET password = #{cpDTO.password} WHERE id = #{id}")
+  int updateUserPassword(@Param("id") String id, @Param("cpDTO") ChangePasswordDTO cpDTO) throws Exception;
 
   @Select("SELECT * FROM user WHERE nickname=#{map.nickname}")
   boolean checkNickname(@Param("map") Map map);

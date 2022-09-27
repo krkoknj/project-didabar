@@ -1,7 +1,9 @@
 package com.bitcamp221.didabara.controller;
 
+import com.bitcamp221.didabara.dto.ChangePasswordDTO;
 import com.bitcamp221.didabara.dto.S3Upload;
 import com.bitcamp221.didabara.dto.UserAndUserInfoDTO;
+import com.bitcamp221.didabara.dto.UserInfoDTO;
 import com.bitcamp221.didabara.model.UserInfoEntity;
 import com.bitcamp221.didabara.service.UserInfoService;
 import lombok.RequiredArgsConstructor;
@@ -28,18 +30,11 @@ public class UserInfoController {
   private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
   @PostMapping("/changepassword")
-  public ResponseEntity<String> getMyPassword(@AuthenticationPrincipal String id, @RequestBody Map<String, String> map) {
+  public ResponseEntity<String> getMyPassword(@AuthenticationPrincipal String id, @RequestBody ChangePasswordDTO cpDTO) throws Exception {
 
-    try {
-      if (userInfoService.checkAndChange(id, map, passwordEncoder)) {
-        return ResponseEntity.ok().body("업데이트 완료");
-      }
-
-    } catch (Exception e) {
-      log.error(e.getMessage());
-      return ResponseEntity.badRequest().body(e.getMessage());
+    if (userInfoService.checkAndChange(id, cpDTO, passwordEncoder)) {
+      return ResponseEntity.ok().body("업데이트 완료");
     }
-
 
     return ResponseEntity.badRequest().body("업데이트 실패");
   }
@@ -126,20 +121,13 @@ public class UserInfoController {
    * @return String 삭제 실패, 완료
    */
   @DeleteMapping
-  public ResponseEntity<String> deleteMyPage(@AuthenticationPrincipal String id) {
+  public ResponseEntity<String> deleteMyPage(@AuthenticationPrincipal String id) throws Exception {
 
-    try {
-      if (userInfoService.delete(id) == 0) {
-        return ResponseEntity.badRequest().body("삭제 실패");
-      } else {
-        return ResponseEntity.ok().body("삭제 완료");
-      }
-    } catch (Exception e) {
-      String error = e.getMessage();
-      log.error("deleteMyPage()={}", error);
-      return ResponseEntity.badRequest().body(error);
+    if (userInfoService.delete(id) == 0) {
+      return ResponseEntity.badRequest().body("삭제 실패");
+    } else {
+      return ResponseEntity.ok().body("삭제 완료");
     }
-
   }
 
 
@@ -157,16 +145,9 @@ public class UserInfoController {
    * @return UserInfoEntity 업데이트된 유저 정보
    */
   @PatchMapping("/svg")
-  private ResponseEntity<?> uploadSvg(@RequestParam("svgname") String svgName, @AuthenticationPrincipal String id) {
+  private ResponseEntity<UserInfoDTO> uploadSvg(@RequestParam("svgname") String svgName, @AuthenticationPrincipal String id) throws IllegalArgumentException {
 
-    UserInfoEntity updatedUserInfoEntity = null;
-    try {
-      updatedUserInfoEntity = userInfoService.svgUpdate(svgName, id);
-    } catch (Exception e) {
-      String message = e.getMessage();
-      log.error("uploadSvg()={}", message);
-      return ResponseEntity.badRequest().body(message);
-    }
+    UserInfoDTO updatedUserInfoEntity = userInfoService.svgUpdate(svgName, id);
 
 
     return ResponseEntity.ok().body(updatedUserInfoEntity);

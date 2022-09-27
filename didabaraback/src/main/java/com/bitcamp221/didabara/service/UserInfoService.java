@@ -1,11 +1,13 @@
 package com.bitcamp221.didabara.service;
 
+import com.bitcamp221.didabara.dto.ChangePasswordDTO;
 import com.bitcamp221.didabara.dto.UserAndUserInfoDTO;
+import com.bitcamp221.didabara.dto.UserDTO;
+import com.bitcamp221.didabara.dto.UserInfoDTO;
 import com.bitcamp221.didabara.mapper.UserInfoMapper;
-import com.bitcamp221.didabara.model.UserEntity;
+import com.bitcamp221.didabara.mapper.UserMapper;
 import com.bitcamp221.didabara.model.UserInfoEntity;
 import com.bitcamp221.didabara.presistence.UserInfoRepository;
-import com.bitcamp221.didabara.presistence.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -26,7 +28,7 @@ public class UserInfoService {
 
   private final UserInfoRepository userInfoRepository;
   private final UserInfoMapper userInfoMapper;
-  private final UserRepository userRepository;
+  private final UserMapper userMapper;
   private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
   public int updateMyPage(String id, UserAndUserInfoDTO uid) {
@@ -80,37 +82,33 @@ public class UserInfoService {
     }
   }
 
-  public boolean checkAndChange(String id, Map<String, String> map, PasswordEncoder passwordEncoder) throws Exception {
+  public boolean checkAndChange(String id, ChangePasswordDTO cpDTO, PasswordEncoder passwordEncoder) throws Exception {
 
-    UserEntity byId = userRepository.findById(Long.valueOf(id)).orElseThrow(() -> new IllegalArgumentException("사용자가 없습니다."));
-    String currentPassword = map.get("currentPassword");
-    if (passwordEncoder.matches(currentPassword, byId.getPassword())) {
-      String changePassword = map.get("password");
-      String encodePassword = passwordEncoder.encode(changePassword);
+    UserDTO byId = userMapper.findByIdUser(id);
+
+    if (passwordEncoder.matches(cpDTO.getCurrentPassword(), byId.getPassword())) {
+
+      String encodePassword = passwordEncoder.encode(cpDTO.getPassword());
       byId.setPassword(encodePassword);
 
-      userRepository.save(byId);
+      int checkRow = userInfoMapper.updateUserPassword(id, cpDTO);
 
-      return true;
+      return checkRow >= 1;
+
     } else {
-      throw new Exception("패스워드가 일치하지 않습니다.");
+      throw new IllegalArgumentException("패스워드가 일치하지 않습니다.");
     }
   }
 
-  public UserInfoEntity svgUpdate(String svgName, String id) throws Exception {
-    UserInfoEntity byId = null;
-    try {
-      byId = userInfoRepository.findById(Long.valueOf(id))
-              .orElseThrow(() -> new RuntimeException("없는 사용자"));
-    } catch (RuntimeException e) {
-      String error = e.getMessage();
-      log.error("svgUpdate error={}", error);
-      throw new RuntimeException(e);
-    }
-    byId.setProfileImageUrl(byId.getProfileImageUrl());
+  public UserInfoDTO svgUpdate(String svgName, String id) {
+    UserInfoDTO byId = userInfoMapper.findByIdUserInfo(id);
     byId.setFilename(svgName);
+    if (userInfoMapper.updateSvg(id, byId) < 1) {
+      throw new IllegalArgumentException("업데이트 실패");
+    }
 
-    return userInfoRepository.save(byId);
+
+    return byId;
   }
 
   public UserInfoEntity amdinCheckAndBan(String id, String userId) throws IllegalStateException {
@@ -124,7 +122,10 @@ public class UserInfoService {
     // 밴 체크
     UserInfoEntity byIdInUser = userInfoMapper.findByIdInUserInfo(userId);
 
-    byIdInUser.setBan(!byIdInUser.isBan());
+    byIdInUser = UserInfoEntity.builder()
+            .ban(!byIdInUser.isBan())
+            .build();
+
     return userInfoMapper.updateBan(byIdInUser);
 
   }
