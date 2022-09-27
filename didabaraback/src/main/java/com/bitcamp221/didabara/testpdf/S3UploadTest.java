@@ -66,6 +66,7 @@ public class S3UploadTest {
   }
 
   public String upload(File uploadFile, String dirName) {
+    String myPath = "C:\\Users\\nj\\Downloads\\";
     String fileName = dirName + "/" + uploadFile.getName();
     System.out.println("fileName = " + fileName);
     String uploadImageURI = putS3(uploadFile, fileName);

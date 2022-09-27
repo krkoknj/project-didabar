@@ -104,7 +104,8 @@ public class TestController {
     WordProcessingLoadOptions loadOptions = new WordProcessingLoadOptions();
 
     // MutipartFile 을 File로 변환
-    File uploadFile = convert(file).orElseThrow(() -> new IllegalArgumentException("file 전달에 실패했습니다."));
+//    File uploadFile = convert(file).orElseThrow(() -> new IllegalArgumentException("file 전달에 실패했습니다."));
+    File uploadFile = convertTest(file);
     System.out.println("uploadFile.toString() = " + uploadFile.toString());
     // GroupDocs Converter에 File로 변환한 값의 toString() (파일경로), word 파일옵션 넣어주기
     Converter converter = new Converter(uploadFile.toString(), loadOptions);
@@ -119,6 +120,9 @@ public class TestController {
 
     File newFile = new File(myPath + code + ".pdf");
     System.out.println("newFile.toString() = " + newFile.toString());
+
+    // 현재 디렉토리에 저장되었던 파일 지우기
+    removeNewFile(uploadFile);
     return ResponseEntity.ok().body(s3UploadTest.upload(newFile, "myfile"));
   }
 
@@ -138,4 +142,24 @@ public class TestController {
     return Optional.empty();
   }
 
+  private File convertTest(MultipartFile file) throws IOException {
+    // 현재 디렉토리를 가져와서 / + file의 이름을 붙여서 생성.
+    File convertFile = new File(System.getProperty("user.dir") + "/" + file.getOriginalFilename());
+    System.out.println("convertFile = " + convertFile);
+    System.out.println("convertFile.getName() = " + convertFile.getName()); // ex) download.jpg
+    // FileOutpusStream 은 무조건 해당파일을 생성함. 존재하는 파일일 경우 덮어 쓰기.
+    try (FileOutputStream fos = new FileOutputStream(convertFile)) {
+      // 입력받은 내용을 파일 내용으로 기록함.
+      fos.write(file.getBytes());
+    }
+    return convertFile;
+  }
+
+  private void removeNewFile(File targetFile) {
+    if (targetFile.delete()) {
+      log.info("파일 삭제 완료");
+    } else {
+      log.info("파일 삭제 실패");
+    }
+  }
 }

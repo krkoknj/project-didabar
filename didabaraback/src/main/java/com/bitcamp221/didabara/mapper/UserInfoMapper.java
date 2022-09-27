@@ -1,6 +1,5 @@
 package com.bitcamp221.didabara.mapper;
 
-import com.bitcamp221.didabara.dto.ChangePasswordDTO;
 import com.bitcamp221.didabara.dto.UserAndUserInfoDTO;
 import com.bitcamp221.didabara.dto.UserInfoDTO;
 import com.bitcamp221.didabara.model.UserInfoEntity;
@@ -12,11 +11,11 @@ import java.util.Map;
 public interface UserInfoMapper {
 
 
-  @Select("SELECT * FROM userinfo WHERE id=#{id}")
+  @Select("SELECT * FROM user_info WHERE id=#{id}")
   UserInfoDTO findByIdUserInfo(@Param("id") String id);
 
-  @Update("UPDATE userinfo SET filename=#{uiDTO.filename} WHERE id=#{id}")
-  int updateSvg(@Param("id") String id, @Param("uiDTO") UserInfoDTO uiDTO);
+  @Update("UPDATE user_info SET file_name=#{svg} WHERE id=#{id}")
+  int updateSvg(@Param("id") String id, @Param("svg") String svgName);
 
 
   @Results({
@@ -25,11 +24,11 @@ public interface UserInfoMapper {
           @Result(property = "profileImageUrl", column = "profile_image_url")
   })
   @Select("SELECT file_ori_name,file_name,profile_image_url FROM user_info WHERE id=#{id}")
-  UserInfoEntity findByIdInUserInfo(@Param("id") String id);
+  UserInfoDTO findByIdInUserInfo(@Param("id") String id);
 
 
   @Select("SELECT * FROM user_info JOIN user ON user_info.id = user.id WHERE user.id=#{id}")
-  Map<String, UserInfoEntity> findByMap(@Param("id") Long id);
+  Map<String, UserInfoDTO> findByMap(@Param("id") Long id);
 
   @Select("SELECT * FROM user_info JOIN user ON user_info.id = user.id WHERE user.id=#{id}")
   UserAndUserInfoDTO findByDTO(@Param("id") String id);
@@ -45,8 +44,8 @@ public interface UserInfoMapper {
           "WHERE user.id = #{id} ")
   int updateUserInfo(@Param("id") String id, @Param("map") Map map);
 
-  @Update("UPDATE user SET password = #{cpDTO.password} WHERE id = #{id}")
-  int updateUserPassword(@Param("id") String id, @Param("cpDTO") ChangePasswordDTO cpDTO) throws Exception;
+  @Update("UPDATE user SET password = #{password} WHERE id = #{id}")
+  int updateUserPassword(@Param("id") String id, @Param("password") String password) throws Exception;
 
   @Select("SELECT * FROM user WHERE nickname=#{map.nickname}")
   boolean checkNickname(@Param("map") Map map);
@@ -61,7 +60,7 @@ public interface UserInfoMapper {
   int insert(@Param("user") UserInfoEntity userInfo);
 
   @Update("UPDATE user_info SET ban = #{user.ban} WHERE id = #{user.id}")
-  UserInfoEntity updateBan(@Param("user") UserInfoEntity userInfo);
+  UserInfoDTO updateBan(@Param("user") UserInfoDTO userInfo);
 
   @Select("SELECT * FROM user_info " +
           "JOIN user " +

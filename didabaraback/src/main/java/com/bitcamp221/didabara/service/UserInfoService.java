@@ -66,7 +66,7 @@ public class UserInfoService {
   }
 
 
-  public Map<String, UserInfoEntity> findByIdMyPage(Long id) {
+  public Map<String, UserInfoDTO> findByIdMyPage(Long id) {
 
     return userInfoMapper.findByMap(id);
   }
@@ -82,7 +82,7 @@ public class UserInfoService {
     }
   }
 
-  public boolean checkAndChange(String id, ChangePasswordDTO cpDTO, PasswordEncoder passwordEncoder) throws Exception {
+  public boolean checkAndChange(String id, ChangePasswordDTO cpDTO) throws Exception {
 
     UserDTO byId = userMapper.findByIdUser(id);
 
@@ -90,8 +90,9 @@ public class UserInfoService {
 
       String encodePassword = passwordEncoder.encode(cpDTO.getPassword());
       byId.setPassword(encodePassword);
+      System.out.println("encodePassword = " + encodePassword);
 
-      int checkRow = userInfoMapper.updateUserPassword(id, cpDTO);
+      int checkRow = userInfoMapper.updateUserPassword(id, encodePassword);
 
       return checkRow >= 1;
 
@@ -101,9 +102,11 @@ public class UserInfoService {
   }
 
   public UserInfoDTO svgUpdate(String svgName, String id) {
+    System.out.println("svgName = " + svgName);
+
     UserInfoDTO byId = userInfoMapper.findByIdUserInfo(id);
     byId.setFilename(svgName);
-    if (userInfoMapper.updateSvg(id, byId) < 1) {
+    if (userInfoMapper.updateSvg(id, svgName) < 1) {
       throw new IllegalArgumentException("업데이트 실패");
     }
 
@@ -111,20 +114,18 @@ public class UserInfoService {
     return byId;
   }
 
-  public UserInfoEntity amdinCheckAndBan(String id, String userId) throws IllegalStateException {
+  public UserInfoDTO amdinCheckAndBan(String id, String userId) throws IllegalStateException {
 
-    UserInfoEntity admin = userInfoMapper.findByIdInUserInfo(id);
+    UserInfoDTO admin = userInfoMapper.findByIdInUserInfo(id);
 
     if (admin.getRole() != 1) {
       throw new IllegalArgumentException("관리자가 아닙니다.");
     }
 
     // 밴 체크
-    UserInfoEntity byIdInUser = userInfoMapper.findByIdInUserInfo(userId);
+    UserInfoDTO byIdInUser = userInfoMapper.findByIdInUserInfo(userId);
+    byIdInUser.setBan(!byIdInUser.isBan());
 
-    byIdInUser = UserInfoEntity.builder()
-            .ban(!byIdInUser.isBan())
-            .build();
 
     return userInfoMapper.updateBan(byIdInUser);
 

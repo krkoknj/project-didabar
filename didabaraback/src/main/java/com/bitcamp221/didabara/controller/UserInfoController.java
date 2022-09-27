@@ -10,8 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,12 +25,11 @@ public class UserInfoController {
 
   private final UserInfoService userInfoService;
   private final S3Upload s3Upload;
-  private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
   @PostMapping("/changepassword")
   public ResponseEntity<String> getMyPassword(@AuthenticationPrincipal String id, @RequestBody ChangePasswordDTO cpDTO) throws Exception {
 
-    if (userInfoService.checkAndChange(id, cpDTO, passwordEncoder)) {
+    if (userInfoService.checkAndChange(id, cpDTO)) {
       return ResponseEntity.ok().body("업데이트 완료");
     }
 
@@ -51,9 +48,9 @@ public class UserInfoController {
    * @return UserInfoEntity
    */
   @GetMapping("/admin/{userId}")
-  public ResponseEntity<UserInfoEntity> adminBan(@AuthenticationPrincipal String id, @PathVariable String userId) {
+  public ResponseEntity<UserInfoDTO> adminBan(@AuthenticationPrincipal String id, @PathVariable String userId) {
 
-    UserInfoEntity byIdInUser = userInfoService.amdinCheckAndBan(id, userId);
+    UserInfoDTO byIdInUser = userInfoService.amdinCheckAndBan(id, userId);
 
 
     return ResponseEntity.ok().body(byIdInUser);
@@ -74,12 +71,12 @@ public class UserInfoController {
    * @return UserInfoEntity, UserEntity
    */
   @GetMapping
-  public ResponseEntity<Map<String, UserInfoEntity>> myPage(@AuthenticationPrincipal String id) {
+  public ResponseEntity<Map<String, UserInfoDTO>> myPage(@AuthenticationPrincipal String id) {
     log.info("id={}", id);
     Long userid = Long.valueOf(id);
 
     // id로 내 정보 찾아오기 (user 테이블 user_info 테이블 조인)
-    Map<String, UserInfoEntity> byIdMyPage = userInfoService.findByIdMyPage(userid);
+    Map<String, UserInfoDTO> byIdMyPage = userInfoService.findByIdMyPage(userid);
 
     byIdMyPage.put("password", null);
 
