@@ -29,18 +29,16 @@ public class SmsService {
     // 인증코드 6자리 생성
     String code = UUID.randomUUID().toString().substring(0, 6);
 
-    String username = userMapper.findUserPhoneNumber(phoneNum);
-
 
     HashMap<String, String> params = getStringStringHashMap(phoneNum, code);
 
     try {
       JSONObject send = coolsms.send(params);
       String[] usernameAndcode = new String[2];
+      String username = userMapper.findUserPhoneNumber(phoneNum);
       usernameAndcode[0] = code;
       usernameAndcode[1] = username;
 
-      System.out.println("send.toString() = " + send.toString());
       return usernameAndcode;
     } catch (CoolsmsException e) {
       throw new RuntimeException(e);
